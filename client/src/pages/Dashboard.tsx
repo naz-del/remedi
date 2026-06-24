@@ -31,7 +31,7 @@ export default function Dashboard() {
       <section className="relative overflow-hidden rounded-3xl border border-ink-100 bg-white p-7 shadow-card">
         <div
           className="absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-30 blur-3xl"
-          style={{ background: 'radial-gradient(circle, #6ee7b7 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(circle, #41B6E6 0%, transparent 70%)' }}
         />
         <div className="relative flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>

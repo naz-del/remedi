@@ -7,11 +7,11 @@ const statusColor: Record<string, string> = {
   refurbishing: 'bg-amber-100 text-amber-800',
   listed: 'bg-sky-100 text-sky-800',
   shipped: 'bg-violet-100 text-violet-800',
-  sold: 'bg-emerald-100 text-emerald-800',
+  sold: 'bg-accent-50 text-accent-700',
 };
 
 const conditionColor: Record<string, string> = {
-  A: 'bg-emerald-100 text-emerald-800',
+  A: 'bg-accent-50 text-accent-700',
   B: 'bg-amber-100 text-amber-800',
   C: 'bg-orange-100 text-orange-800',
 };
@@ -87,7 +87,7 @@ export default function Inventory() {
                 <td className="td"><span className={`badge ${conditionColor[r.condition_grade] ?? 'bg-gray-100 text-gray-700'}`}>Grade {r.condition_grade}</span></td>
                 <td className="td">{gbp(r.acquisition_cost_gbp)}</td>
                 <td className="td">{gbp(r.listed_price_gbp)}</td>
-                <td className="td font-medium text-brand-700">{r.listed_price_gbp != null ? gbp(r.listed_price_gbp - r.acquisition_cost_gbp) : '—'}{r.status === 'sold' && <span className="ml-1 text-[10px] text-gray-500">realised</span>}</td>
+                <td className="td font-medium text-accent-700">{r.listed_price_gbp != null ? gbp(r.listed_price_gbp - r.acquisition_cost_gbp) : '—'}{r.status === 'sold' && <span className="ml-1 text-[10px] text-ink-400">realised</span>}</td>
                 <td className="td"><span className={`badge ${statusColor[r.status] ?? 'bg-gray-100 text-gray-700'}`}>{r.status}</span></td>
                 <td className="td">{r.destination_country ?? '—'}</td>
                 <td className="td">{r.acquired_date}</td>

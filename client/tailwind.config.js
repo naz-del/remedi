@@ -8,38 +8,72 @@ export default {
         display: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
+        // NHS Blue scale — dominant brand colour per NHS Identity Guidelines.
+        // 500 = NHS Blue (#005EB8), 800 = NHS Dark Blue (#003087).
         brand: {
-          50:  '#ecfdf5',
-          100: '#d1fae5',
-          200: '#a7f3d0',
-          300: '#6ee7b7',
-          400: '#34d399',
-          500: '#10b981',
-          600: '#059669',
-          700: '#047857',
-          800: '#065f46',
-          900: '#064e3b',
+          50:  '#e8f1fa',
+          100: '#c8def3',
+          200: '#98c0e8',
+          300: '#6ba3dd',
+          400: '#4188d2',
+          500: '#005EB8',
+          600: '#00509e',
+          700: '#003f7e',
+          800: '#003087',
+          900: '#001e5e',
         },
+        // NHS Bright Blue / Light Blue — supporting, moderate use.
+        brightBlue: { 500: '#0072CE', 300: '#41B6E6', 100: '#aedcf2' },
+        aquaBlue: { 500: '#00A9CE' },
+
+        // NHS Green scale — moderate accent, reinforces the reuse / sustainability angle.
+        // 500 = NHS Green (#009639), 700 = NHS Dark Green (#006747).
+        accent: {
+          50:  '#e6f4ec',
+          100: '#c2e4cf',
+          200: '#9bd3b1',
+          300: '#6fc18f',
+          400: '#33ad6a',
+          500: '#009639',
+          600: '#007e2f',
+          700: '#006747',
+          800: '#00532e',
+          900: '#003c20',
+        },
+        // NHS Highlight colours — very minimal use (errors, warnings, special states).
+        nhs: {
+          warmYellow: '#FFB81C',
+          orange: '#ED8B00',
+          red: '#DA291C',
+          darkRed: '#8A1538',
+          pink: '#AE2573',
+          purple: '#330072',
+          lightGreen: '#78BE20',
+          aquaGreen: '#00A499',
+        },
+
+        // Neutrals — NHS Black, Dark Grey, Mid Grey, Pale Grey with interpolated steps.
         ink: {
-          900: '#0b1417',
-          800: '#162026',
-          700: '#1f2c34',
-          500: '#4b5b66',
-          400: '#6b7a85',
-          300: '#9aa6ae',
-          200: '#cdd5db',
-          100: '#e8ecef',
-          50:  '#f5f7f8',
+          50:  '#F8FAFB',
+          100: '#E8EDEE', // NHS Pale Grey
+          200: '#D0D7DA',
+          300: '#A8B3B8',
+          400: '#768692', // NHS Mid Grey
+          500: '#5A6973',
+          700: '#425563', // NHS Dark Grey
+          800: '#2D3A44',
+          900: '#231F20', // NHS Black
         },
       },
       boxShadow: {
-        card: '0 1px 2px rgba(15,23,42,0.04), 0 1px 1px rgba(15,23,42,0.03)',
-        cardHover: '0 8px 24px -8px rgba(5,150,105,0.15), 0 2px 4px rgba(15,23,42,0.05)',
+        card: '0 1px 2px rgba(35,31,32,0.04), 0 1px 1px rgba(35,31,32,0.03)',
+        cardHover: '0 8px 24px -8px rgba(0,94,184,0.18), 0 2px 4px rgba(35,31,32,0.05)',
       },
       backgroundImage: {
-        'brand-gradient': 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
-        'hero-grid':
-          'radial-gradient(circle at 1px 1px, rgba(15,23,42,0.06) 1px, transparent 0)',
+        // NHS Blue dominant gradient for primary surfaces.
+        'brand-gradient': 'linear-gradient(135deg, #005EB8 0%, #003087 100%)',
+        // Accent gradient (NHS Green) reserved for sustainability/reuse motifs.
+        'accent-gradient': 'linear-gradient(135deg, #009639 0%, #006747 100%)',
       },
     },
   },

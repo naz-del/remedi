@@ -93,7 +93,7 @@ export default function Radar() {
           <tbody className="divide-y divide-gray-100 bg-white">
             {rows.map(r => {
               const days = r.days_until_refresh;
-              const colour = days < 0 ? 'text-red-700' : days <= 90 ? 'text-amber-700' : days <= 365 ? 'text-emerald-700' : 'text-gray-700';
+              const colour = days < 0 ? 'text-red-700' : days <= 90 ? 'text-amber-700' : days <= 365 ? 'text-accent-700' : 'text-ink-500';
               return (
                 <tr key={r.id}>
                   <td className={`td font-medium ${colour}`}>{r.next_refresh_date}</td>

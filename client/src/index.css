@@ -9,10 +9,11 @@
   body {
     @apply text-ink-900 antialiased;
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
-    background-color: #f5f7f8;
+    /* "Lots of white" per NHS guidelines. Background is near-white with a hint of NHS Pale Grey. */
+    background-color: #ffffff;
     background-image:
-      radial-gradient(circle at 1px 1px, rgba(15,23,42,0.05) 1px, transparent 0),
-      linear-gradient(180deg, #f8faf9 0%, #f5f7f8 100%);
+      radial-gradient(circle at 1px 1px, rgba(35,31,32,0.04) 1px, transparent 0),
+      linear-gradient(180deg, #ffffff 0%, #F8FAFB 100%);
     background-size: 28px 28px, 100% 100%;
   }
   h1, h2, h3, h4 { font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif; letter-spacing: -0.01em; }
@@ -25,7 +26,7 @@
   }
   .tile:hover { @apply shadow-cardHover -translate-y-px; }
   .tile-accent {
-    @apply absolute left-0 top-4 bottom-4 w-1 rounded-r-full bg-brand-gradient opacity-80;
+    @apply absolute left-0 top-4 bottom-4 w-1 rounded-r-full bg-brand-gradient opacity-90;
   }
   .tile-label { @apply text-[11px] uppercase tracking-[0.08em] text-ink-400 font-medium; }
   .tile-value { @apply mt-1 text-3xl font-semibold text-ink-900; font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
@@ -45,7 +46,7 @@
   .input {
     @apply block w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 shadow-card transition;
   }
-  .input:focus { @apply border-brand-400 outline-none ring-2 ring-brand-100; }
+  .input:focus { @apply border-brand-500 outline-none ring-2 ring-brand-100; }
   .label { @apply mb-1 block text-xs font-medium text-ink-500; }
 
   /* Badges, tables */

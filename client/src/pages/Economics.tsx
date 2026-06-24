@@ -19,7 +19,7 @@ export default function Economics() {
       <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
         <div className="tile"><div className="tile-label">Total items</div><div className="tile-value">{overall.items}</div><div className="tile-sub">{overall.sold_count} sold · {overall.shipped_count + overall.listed_count + overall.refurbishing_count + overall.acquired_count} active</div></div>
         <div className="tile"><div className="tile-label">Acquisition spend</div><div className="tile-value">{gbp(overall.total_acquisition_gbp)}</div><div className="tile-sub">All-time</div></div>
-        <div className="tile"><div className="tile-label">Realised margin</div><div className="tile-value text-brand-700">{gbp(overall.realised_margin_gbp)}</div><div className="tile-sub">{realisedMarginPct}% of realised revenue</div></div>
+        <div className="tile"><div className="tile-label">Realised margin</div><div className="tile-value text-accent-700">{gbp(overall.realised_margin_gbp)}</div><div className="tile-sub">{realisedMarginPct}% of realised revenue</div></div>
         <div className="tile"><div className="tile-label">Pipeline margin (implied)</div><div className="tile-value">{gbp(overall.implied_margin_pipeline_gbp)}</div><div className="tile-sub">Total lifecycle margin {gbp(totalLifecycleMargin)}</div></div>
       </div>
 
@@ -47,7 +47,7 @@ export default function Economics() {
                 <td className="td text-right">{r.items}</td>
                 <td className="td text-right">{gbp(r.acquisition_gbp)}</td>
                 <td className="td text-right">{gbp(r.listed_gbp)}</td>
-                <td className="td text-right text-brand-700 font-medium">{gbp(r.margin_gbp)}</td>
+                <td className="td text-right text-accent-700 font-medium">{gbp(r.margin_gbp)}</td>
                 <td className="td text-right">{r.margin_pct == null ? '—' : `${r.margin_pct}%`}</td>
               </tr>
             ))}
@@ -76,7 +76,7 @@ export default function Economics() {
                     <td className="td font-medium">{r.destination_country}</td>
                     <td className="td text-right">{r.items}</td>
                     <td className="td text-right">{r.sold}</td>
-                    <td className="td text-right text-brand-700 font-medium">{gbp(r.margin_gbp)}</td>
+                    <td className="td text-right text-accent-700 font-medium">{gbp(r.margin_gbp)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -102,7 +102,7 @@ export default function Economics() {
                   <tr key={r.category_name}>
                     <td className="td font-medium">{r.category_name}</td>
                     <td className="td text-right">{r.items}</td>
-                    <td className="td text-right text-brand-700 font-medium">{gbp(r.margin_gbp)}</td>
+                    <td className="td text-right text-accent-700 font-medium">{gbp(r.margin_gbp)}</td>
                     <td className="td text-right">{r.margin_pct == null ? '—' : `${r.margin_pct}%`}</td>
                   </tr>
                 ))}

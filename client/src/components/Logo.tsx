@@ -16,9 +16,10 @@ export function LogoMark({ size = 40, className = '' }: { size?: number; classNa
       role="img"
     >
       <defs>
+        {/* NHS Blue → NHS Dark Blue */}
         <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#10b981" />
-          <stop offset="100%" stopColor="#047857" />
+          <stop offset="0%" stopColor="#005EB8" />
+          <stop offset="100%" stopColor="#003087" />
         </linearGradient>
         <linearGradient id={sgid} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="rgba(255,255,255,0.35)" />
@@ -44,8 +45,8 @@ export function LogoMark({ size = 40, className = '' }: { size?: number; classNa
         {/* leg */}
         <path d="M22 28 L32 36" />
       </g>
-      {/* Pulse accent dot */}
-      <circle cx="35" cy="13" r="3" fill="#6ee7b7" />
+      {/* NHS Green reuse accent — moderate use, signals the sustainability angle. */}
+      <circle cx="35" cy="13" r="3" fill="#009639" />
     </svg>
   );
 }

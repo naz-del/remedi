@@ -3,7 +3,7 @@ import { api, BidTimingResponse, DataPackage, DeviceCategory, gbp, Icb, Manufact
 import { PageHeader } from '../components/PageHeader';
 
 const statusColor: Record<string, string> = {
-  sold: 'bg-emerald-100 text-emerald-800',
+  sold: 'bg-accent-50 text-accent-700',
   pipeline: 'bg-sky-100 text-sky-800',
 };
 
@@ -160,7 +160,7 @@ export default function Leads() {
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
                 {bid.opportunities.slice(0, 60).map(o => {
-                  const colour = o.days_until_refresh < 0 ? 'text-red-700' : o.days_until_refresh <= 180 ? 'text-amber-700' : 'text-emerald-700';
+                  const colour = o.days_until_refresh < 0 ? 'text-red-700' : o.days_until_refresh <= 180 ? 'text-amber-700' : 'text-accent-700';
                   const inBidWindow = (() => {
                     const now = Date.now();
                     return new Date(o.recommended_bid_start).getTime() <= now && now <= new Date(o.recommended_bid_close).getTime();

@@ -48,7 +48,7 @@ export default function SiteDetail() {
             {site.devices.map(d => {
               const due = new Date(d.next_refresh_date);
               const daysUntil = Math.round((due.getTime() - Date.now()) / 86_400_000);
-              const colour = daysUntil < 0 ? 'text-red-700' : daysUntil <= 90 ? 'text-amber-700' : daysUntil <= 365 ? 'text-emerald-700' : 'text-gray-700';
+              const colour = daysUntil < 0 ? 'text-red-700' : daysUntil <= 90 ? 'text-amber-700' : daysUntil <= 365 ? 'text-accent-700' : 'text-ink-500';
               return (
                 <tr key={d.id}>
                   <td className="td font-medium">{d.category_name}</td>

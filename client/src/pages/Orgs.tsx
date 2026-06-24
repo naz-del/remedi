@@ -4,7 +4,7 @@ import { api, Icb, OrgIcb, Region } from '../api';
 import { PageHeader } from '../components/PageHeader';
 
 const statusColor: Record<string, string> = {
-  merged: 'bg-emerald-100 text-emerald-800',
+  merged: 'bg-accent-50 text-accent-700',
   cluster: 'bg-amber-100 text-amber-800',
   solo: 'bg-sky-100 text-sky-800',
   health_board: 'bg-purple-100 text-purple-800',

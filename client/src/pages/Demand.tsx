@@ -3,13 +3,13 @@ import { api, DemandMarket, gbp, Match } from '../api';
 import { PageHeader } from '../components/PageHeader';
 
 const budgetColor: Record<string, string> = {
-  high: 'bg-emerald-100 text-emerald-800',
+  high: 'bg-accent-50 text-accent-700',
   mid: 'bg-amber-100 text-amber-800',
   low: 'bg-gray-100 text-gray-700',
 };
 
 const conditionColor: Record<string, string> = {
-  A: 'bg-emerald-100 text-emerald-800',
+  A: 'bg-accent-50 text-accent-700',
   B: 'bg-amber-100 text-amber-800',
   C: 'bg-orange-100 text-orange-800',
 };
