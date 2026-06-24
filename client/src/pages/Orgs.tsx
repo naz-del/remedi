@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, Icb, OrgIcb, Region } from '../api';
+import { PageHeader } from '../components/PageHeader';
 
 const statusColor: Record<string, string> = {
   merged: 'bg-emerald-100 text-emerald-800',
@@ -32,8 +33,7 @@ export default function Orgs() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Organisations</h1>
-      <p className="text-sm text-gray-600">ICB / Health Board → Trust → Hospital site.</p>
+      <PageHeader title="Organisations" subtitle="ICB / Health Board → Trust → Hospital site." icon="Building" />
 
       <div className="card mt-4 flex gap-4 p-4">
         <div className="w-64">

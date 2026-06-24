@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, EconomicsResponse, gbp } from '../api';
+import { PageHeader } from '../components/PageHeader';
 
 export default function Economics() {
   const [data, setData] = useState<EconomicsResponse | null>(null);
@@ -13,8 +14,7 @@ export default function Economics() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Sourcing economics</h1>
-      <p className="text-sm text-gray-600">Per-item margin, broken down by source NHS ICB and by destination country. Realised = sold; implied = listed minus acquisition for in-flight stock.</p>
+      <PageHeader title="Sourcing economics" subtitle="Per-item margin by source NHS ICB and destination country. Realised = sold; implied = listed minus acquisition for in-flight stock." icon="TrendUp" />
 
       <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
         <div className="tile"><div className="tile-label">Total items</div><div className="tile-value">{overall.items}</div><div className="tile-sub">{overall.sold_count} sold · {overall.shipped_count + overall.listed_count + overall.refurbishing_count + overall.acquired_count} active</div></div>

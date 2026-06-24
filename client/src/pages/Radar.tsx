@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, DeviceCategory, gbp, Icb, Region, ReplenishmentRow } from '../api';
+import { PageHeader } from '../components/PageHeader';
 
 const windows = [
   { label: 'Next 90 days', value: 90 },
@@ -38,8 +39,7 @@ export default function Radar() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Replenishment radar</h1>
-      <p className="text-sm text-gray-600">Upcoming NHS refresh events, soonest first. The targeting tool for both device acquisition and cycle-data sales.</p>
+      <PageHeader title="Replenishment radar" subtitle="Upcoming NHS refresh events, soonest first. The targeting tool for both device acquisition and cycle-data sales." icon="Radar" />
 
       <div className="card mt-4 grid grid-cols-1 gap-4 p-4 md:grid-cols-4">
         <div>

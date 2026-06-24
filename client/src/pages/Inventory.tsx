@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, gbp, InventoryItem } from '../api';
+import { PageHeader } from '../components/PageHeader';
 
 const statusColor: Record<string, string> = {
   acquired: 'bg-gray-100 text-gray-800',
@@ -34,8 +35,7 @@ export default function Inventory() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Inventory</h1>
-      <p className="text-sm text-gray-600">Devices acquired from NHS sites, refurbished, listed, shipped, sold.</p>
+      <PageHeader title="Inventory" subtitle="Devices acquired from NHS sites, refurbished, listed, shipped, sold." icon="Box" />
 
       <div className="card mt-4 grid grid-cols-1 gap-4 p-4 md:grid-cols-3">
         <div>

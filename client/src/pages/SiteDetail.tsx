@@ -12,9 +12,9 @@ export default function SiteDetail() {
 
   return (
     <div>
-      <Link to="/orgs" className="text-sm text-brand-700 hover:underline">← Back to organisations</Link>
-      <h1 className="mt-2 text-2xl font-bold">{site.name}</h1>
-      <p className="text-sm text-gray-600">{site.trust_name} · {site.icb_name} · {site.region_name} · {site.country}</p>
+      <Link to="/orgs" className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:text-brand-800">← Back to organisations</Link>
+      <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight text-ink-900">{site.name}</h1>
+      <p className="text-sm text-ink-500">{site.trust_name} · {site.icb_name} · {site.region_name} · {site.country}</p>
 
       <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="card p-4">

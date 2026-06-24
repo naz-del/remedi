@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, BidTimingResponse, DataPackage, DeviceCategory, gbp, Icb, Manufacturer, PriceBreakdown, Region } from '../api';
+import { PageHeader } from '../components/PageHeader';
 
 const statusColor: Record<string, string> = {
   sold: 'bg-emerald-100 text-emerald-800',
@@ -53,8 +54,7 @@ export default function Leads() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Data intelligence</h1>
-      <p className="text-sm text-gray-600">Sell replenishment-cycle data to medical device manufacturers. Price packages by scope + urgency + exclusivity, and time their NHS bids to refresh windows.</p>
+      <PageHeader title="Data intelligence" subtitle="Sell replenishment-cycle data to medical device manufacturers. Price packages by scope + urgency + exclusivity, and time their NHS bids to refresh windows." icon="Spark" />
 
       {/* Pricing calculator */}
       <section className="card mt-4 p-5">

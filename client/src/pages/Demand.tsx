@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, DemandMarket, gbp, Match } from '../api';
+import { PageHeader } from '../components/PageHeader';
 
 const budgetColor: Record<string, string> = {
   high: 'bg-emerald-100 text-emerald-800',
@@ -38,8 +39,7 @@ export default function Demand() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Demand markets</h1>
-      <p className="text-sm text-gray-600">Destination hospitals in South Asia and the Far East. Match acquired UK stock to declared needs.</p>
+      <PageHeader title="Demand markets" subtitle="Destination hospitals in South Asia and the Far East. Match acquired UK stock to declared needs." icon="Globe" />
 
       {/* Top match suggestions */}
       <section className="card mt-4 p-5">
