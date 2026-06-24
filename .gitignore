@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.vite/
+*.log
+
+# SQLite
+server/remedi.db
+server/remedi.db-shm
+server/remedi.db-wal
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

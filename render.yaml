@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: remedi
+    runtime: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+    autoDeploy: true

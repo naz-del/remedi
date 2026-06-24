@@ -1,0 +1,21 @@
+{
+  "name": "remedi",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ReMedi - UK NHS medical device reuse and resale POC",
+  "scripts": {
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install",
+    "seed": "npm --prefix server run seed",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "dev": "concurrently -n server,client -c blue,magenta \"npm:dev:server\" \"npm:dev:client\"",
+    "build": "npm run install:all && npm --prefix client run build && npm --prefix server run build",
+    "start": "node --experimental-sqlite server/dist/index.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
