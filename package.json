@@ -4,7 +4,7 @@
   "private": true,
   "description": "ReMedi - UK NHS medical device reuse and resale POC",
   "scripts": {
-    "install:all": "npm install && npm --prefix server install && npm --prefix client install",
+    "install:all": "npm install --include=dev && npm --prefix server install --include=dev && npm --prefix client install --include=dev",
     "seed": "npm --prefix server run seed",
     "dev:server": "npm --prefix server run dev",
     "dev:client": "npm --prefix client run dev",
