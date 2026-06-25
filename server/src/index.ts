@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { db, initSchema, isEmpty } from './db.js';
 import { priceDataPackage } from './pricing.js';
 import { runSeed, ensureUsers } from './seed.js';
-import { authMiddleware, login, logout, requireAuth, requireRole } from './auth.js';
+import { authMiddleware, listUsers, login, loginAsUserId, logout, requireAuth, requireRole } from './auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isProduction = process.env.NODE_ENV === 'production';
@@ -43,6 +43,20 @@ app.post('/api/auth/logout', (req, res) => {
 
 app.get('/api/auth/me', requireAuth, (req, res) => {
   res.json({ user: req.user });
+});
+
+// Admin-only: list users available for impersonation.
+app.get('/api/auth/users', requireAuth, requireRole('admin'), (_req, res) => {
+  res.json({ users: listUsers() });
+});
+
+// Admin-only: mint a session for any user without password.
+app.post('/api/auth/impersonate', requireAuth, requireRole('admin'), (req, res) => {
+  const { user_id } = req.body ?? {};
+  if (!user_id) { res.status(400).json({ error: 'user_id required' }); return; }
+  const result = loginAsUserId(Number(user_id));
+  if (!result) { res.status(404).json({ error: 'user not found' }); return; }
+  res.json(result);
 });
 
 // All other /api/* routes require admin role unless explicitly scoped under /api/me/*.

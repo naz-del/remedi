@@ -41,6 +41,16 @@ export const api = {
   // Scoped (non-admin) endpoints
   meHospital: () => get<HospitalScope>('/api/me/hospital'),
   meManufacturer: () => get<ManufacturerScope>('/api/me/manufacturer'),
+  authUsers: () => get<{ users: AuthUser[] }>('/api/auth/users'),
+};
+
+export type AuthUser = {
+  id: number;
+  email: string;
+  name: string;
+  role: 'admin' | 'hospital' | 'manufacturer';
+  scope_id: number | null;
+  scope_name: string | null;
 };
 
 export type HospitalScope = {

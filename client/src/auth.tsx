@@ -15,24 +15,37 @@ type AuthCtx = {
   user: User | null;
   token: string | null;
   loading: boolean;
+  impersonating: boolean;
   login(email: string, password: string): Promise<void>;
   logout(): Promise<void>;
+  impersonate(userId: number): Promise<void>;
+  stopImpersonating(): Promise<void>;
 };
 
 const Ctx = createContext<AuthCtx | null>(null);
 
 const TOKEN_KEY = 'remedi.token';
+const ADMIN_TOKEN_KEY = 'remedi.admin.token';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(!!token);
+  const [impersonating, setImpersonating] = useState<boolean>(() => !!localStorage.getItem(ADMIN_TOKEN_KEY));
 
   useEffect(() => {
     if (!token) { setUser(null); setLoading(false); return; }
     fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.ok ? r.json() : null)
-      .then(d => { setUser(d?.user ?? null); if (!d?.user) { localStorage.removeItem(TOKEN_KEY); setToken(null); } })
+      .then(d => {
+        setUser(d?.user ?? null);
+        if (!d?.user) {
+          localStorage.removeItem(TOKEN_KEY);
+          localStorage.removeItem(ADMIN_TOKEN_KEY);
+          setToken(null);
+          setImpersonating(false);
+        }
+      })
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -47,7 +60,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(d?.error || 'login failed');
     }
     const data = await r.json();
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
     localStorage.setItem(TOKEN_KEY, data.token);
+    setImpersonating(false);
     setToken(data.token);
     setUser(data.user);
   }
@@ -57,26 +72,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
     }
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
     setToken(null);
     setUser(null);
+    setImpersonating(false);
   }
 
-  return <Ctx.Provider value={{ user, token, loading, login, logout }}>{children}</Ctx.Provider>;
+  async function impersonate(userId: number) {
+    if (!token) throw new Error('not logged in');
+    const r = await fetch('/api/auth/impersonate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ user_id: userId }),
+    });
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({ error: 'impersonate failed' }));
+      throw new Error(d?.error || 'impersonate failed');
+    }
+    const data = await r.json();
+    // Stash the current admin token (only if we don't already have one stashed).
+    if (!localStorage.getItem(ADMIN_TOKEN_KEY)) {
+      localStorage.setItem(ADMIN_TOKEN_KEY, token);
+    }
+    localStorage.setItem(TOKEN_KEY, data.token);
+    setImpersonating(true);
+    setToken(data.token);
+    setUser(data.user);
+  }
+
+  async function stopImpersonating() {
+    const adminToken = localStorage.getItem(ADMIN_TOKEN_KEY);
+    if (!adminToken) { setImpersonating(false); return; }
+    localStorage.setItem(TOKEN_KEY, adminToken);
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
+    setImpersonating(false);
+    setToken(adminToken);
+    setLoading(true);
+  }
+
+  return (
+    <Ctx.Provider value={{ user, token, loading, impersonating, login, logout, impersonate, stopImpersonating }}>
+      {children}
+    </Ctx.Provider>
+  );
 }
 
 export function useAuth(): AuthCtx {
   const v = useContext(Ctx);
   if (!v) throw new Error('useAuth outside AuthProvider');
   return v;
-}
-
-/** Wrap fetch to inject Authorization header from the active token. */
-export function authFetch(token: string | null) {
-  return async function f(url: string, init: RequestInit = {}) {
-    const headers = new Headers(init.headers);
-    if (token) headers.set('Authorization', `Bearer ${token}`);
-    const r = await fetch(url, { ...init, headers });
-    if (!r.ok) throw new Error(`${url}: ${r.status}`);
-    return r.json();
-  };
 }

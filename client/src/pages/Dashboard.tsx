@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, DashboardStats, gbp } from '../api';
 import { Icon } from '../components/Icons';
+import { ImpersonatePanel } from '../components/ImpersonatePanel';
 
 type Tile = { label: string; value: string | number; sub: string; accent?: boolean; icon: keyof typeof Icon };
 
@@ -90,7 +91,7 @@ export default function Dashboard() {
             </li>
           </ol>
         </div>
-        <div className="card p-6">
+        <div className="card p-6" id="data-sources">
           <h2 className="font-display text-lg font-semibold">Data sources</h2>
           <p className="mt-3 text-sm text-ink-700">
             ICBs and regions follow the NHS England 17 April 2026 list (25 effective entities).
@@ -99,6 +100,8 @@ export default function Dashboard() {
           </p>
         </div>
       </div>
+
+      <ImpersonatePanel />
     </div>
   );
 }

@@ -52,9 +52,29 @@ function row(user: any): UserDto {
 export function login(email: string, password: string): { token: string; user: UserDto } | null {
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as any;
   if (!user || user.password !== password) return null;
+  return mintSession(user);
+}
+
+/**
+ * Issue a session for a target user without password check.
+ * Caller is responsible for authorisation (admin-only).
+ */
+export function loginAsUserId(userId: number): { token: string; user: UserDto } | null {
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId) as any;
+  if (!user) return null;
+  return mintSession(user);
+}
+
+function mintSession(user: any): { token: string; user: UserDto } {
   const token = crypto.randomBytes(32).toString('hex');
   tokens.set(token, user.id);
   return { token, user: row(user) };
+}
+
+/** List all users (admin-only — for the impersonation picker). */
+export function listUsers(): UserDto[] {
+  const rows = db.prepare('SELECT * FROM users ORDER BY role, id').all() as any[];
+  return rows.map(row);
 }
 
 export function logout(token: string): void {

@@ -13,6 +13,7 @@ import ManufacturerHome from './pages/ManufacturerHome';
 import { Logo } from './components/Logo';
 import { Icon } from './components/Icons';
 import { AuthProvider, useAuth } from './auth';
+import { ImpersonationBanner } from './components/ImpersonationBanner';
 
 const adminNav = [
   { to: '/', label: 'Dashboard', end: true, icon: Icon.Dashboard },
@@ -50,6 +51,7 @@ function AuthedShell() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <ImpersonationBanner />
       <header className="sticky top-0 z-30 border-b border-ink-100 bg-white/85 backdrop-blur supports-[backdrop-filter]:bg-white/70">
         <div className="mx-auto flex max-w-7xl items-center gap-6 px-4 py-3">
           <Logo size={38} />
