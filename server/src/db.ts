@@ -102,6 +102,15 @@ export function initSchema() {
       interest_icbs TEXT
     );
 
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY,
+      email TEXT NOT NULL UNIQUE,
+      password TEXT NOT NULL,
+      name TEXT NOT NULL,
+      role TEXT NOT NULL,
+      scope_id INTEGER
+    );
+
     CREATE TABLE IF NOT EXISTS data_packages (
       id INTEGER PRIMARY KEY,
       manufacturer_id INTEGER NOT NULL REFERENCES manufacturers(id),

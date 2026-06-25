@@ -301,6 +301,25 @@ function tx() {
       sold,
     );
   }
+
+  // Users — seed accounts for the three POVs.
+  const insertUser = db.prepare(
+    'INSERT INTO users (email, password, name, role, scope_id) VALUES (?, ?, ?, ?, ?)'
+  );
+  const findSiteId = (name: string) => {
+    const r = siteRows.findIndex(s => s[0] === name);
+    return r >= 0 ? sites[r] : null;
+  };
+  // Admin
+  insertUser.run('admin@remedi.uk', 'admin123', 'ReMedi Admin', 'admin', null);
+  // Hospital users — one per site, demo two trusts
+  insertUser.run('manchester@nhs.uk', 'nhs123', 'Dr Sarah Khan', 'hospital', findSiteId('Manchester Royal Infirmary'));
+  insertUser.run('leeds@nhs.uk', 'nhs123', 'Dr Mark Ellis', 'hospital', findSiteId('Leeds General Infirmary'));
+  insertUser.run('gstt@nhs.uk', 'nhs123', 'Dr Olivia Mensah', 'hospital', findSiteId("St Thomas' Hospital"));
+  // Manufacturer users
+  insertUser.run('sales@medtronic.example', 'mfr123', 'Sophie Allen', 'manufacturer', mfrIds['Medtronic UK']);
+  insertUser.run('sales@philips.example', 'mfr123', 'Daniel Foster', 'manufacturer', mfrIds['Philips Healthcare UK']);
+  insertUser.run('sales@ge.example', 'mfr123', 'Helena Berg', 'manufacturer', mfrIds['GE Healthcare UK']);
     db.exec('COMMIT');
   } catch (e) {
     db.exec('ROLLBACK');
@@ -310,6 +329,41 @@ function tx() {
 
   tx();
   return true;
+}
+
+/**
+ * Idempotently ensure the seed user accounts exist. Useful when the users
+ * table is added to a DB that already has the rest of the data populated
+ * (e.g. an incremental schema migration on a running production instance).
+ */
+export function ensureUsers(): { added: number } {
+  const userCount = (db.prepare('SELECT COUNT(*) AS n FROM users').get() as { n: number }).n;
+  if (userCount > 0) return { added: 0 };
+
+  const insertUser = db.prepare(
+    'INSERT INTO users (email, password, name, role, scope_id) VALUES (?, ?, ?, ?, ?)'
+  );
+  const siteId = (name: string) => {
+    const r = db.prepare('SELECT id FROM sites WHERE name = ?').get(name) as any;
+    return r?.id ?? null;
+  };
+  const mfrId = (name: string) => {
+    const r = db.prepare('SELECT id FROM manufacturers WHERE name = ?').get(name) as any;
+    return r?.id ?? null;
+  };
+
+  db.exec('BEGIN');
+  try {
+    insertUser.run('admin@remedi.uk', 'admin123', 'ReMedi Admin', 'admin', null);
+    insertUser.run('manchester@nhs.uk', 'nhs123', 'Dr Sarah Khan', 'hospital', siteId('Manchester Royal Infirmary'));
+    insertUser.run('leeds@nhs.uk', 'nhs123', 'Dr Mark Ellis', 'hospital', siteId('Leeds General Infirmary'));
+    insertUser.run('gstt@nhs.uk', 'nhs123', 'Dr Olivia Mensah', 'hospital', siteId("St Thomas' Hospital"));
+    insertUser.run('sales@medtronic.example', 'mfr123', 'Sophie Allen', 'manufacturer', mfrId('Medtronic UK'));
+    insertUser.run('sales@philips.example', 'mfr123', 'Daniel Foster', 'manufacturer', mfrId('Philips Healthcare UK'));
+    insertUser.run('sales@ge.example', 'mfr123', 'Helena Berg', 'manufacturer', mfrId('GE Healthcare UK'));
+    db.exec('COMMIT');
+  } catch (e) { db.exec('ROLLBACK'); throw e; }
+  return { added: 7 };
 }
 
 // CLI entry — `npm run seed`

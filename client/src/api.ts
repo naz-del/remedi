@@ -1,5 +1,10 @@
+function authHeaders(): HeadersInit {
+  const t = localStorage.getItem('remedi.token');
+  return t ? { Authorization: `Bearer ${t}` } : {};
+}
+
 async function get<T>(path: string): Promise<T> {
-  const r = await fetch(path);
+  const r = await fetch(path, { headers: { ...authHeaders() } });
   if (!r.ok) throw new Error(`${path}: ${r.status}`);
   return r.json() as Promise<T>;
 }
@@ -7,7 +12,7 @@ async function get<T>(path: string): Promise<T> {
 async function post<T>(path: string, body: unknown): Promise<T> {
   const r = await fetch(path, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify(body),
   });
   if (!r.ok) throw new Error(`${path}: ${r.status}`);
@@ -33,6 +38,27 @@ export const api = {
   bidTiming: (mfrId: number) => get<BidTimingResponse>(`/api/manufacturers/${mfrId}/bid-timing`),
   economics: () => get<EconomicsResponse>('/api/economics'),
   matches: () => get<Match[]>('/api/matches'),
+  // Scoped (non-admin) endpoints
+  meHospital: () => get<HospitalScope>('/api/me/hospital'),
+  meManufacturer: () => get<ManufacturerScope>('/api/me/manufacturer'),
+};
+
+export type HospitalScope = {
+  site: { id: number; name: string; city: string; postcode: string; bed_count: number; contact_name: string; contact_email: string; contact_phone: string; trust_name: string; icb_name: string; region_name: string };
+  devices: { id: number; units: number; last_refresh_date: string; refresh_interval_years: number; category_id: number; category_name: string; avg_unit_value_gbp: number; next_refresh_date: string; days_until_refresh: number; replacement_value_gbp: number; estimated_divestment_gbp: number }[];
+  summary: { devices: number; upcoming_90d: number; upcoming_365d: number; estimated_divestment_gbp: number; replacement_value_gbp: number };
+  enquiries: { from: string; subject: string; status: string; value_gbp: number }[];
+};
+
+export type ManufacturerScope = {
+  manufacturer: { id: number; name: string };
+  summary: {
+    interest_categories: string[]; interest_regions: string[];
+    opportunities: number; bid_now_count: number; next_30d: number;
+    total_pipeline_gbp: number; packages_owned: number; packages_spend_gbp: number;
+  };
+  opportunities: { id: number; units: number; site_id: number; site_name: string; city: string; trust_name: string; icb_name: string; region_name: string; category_name: string; next_refresh_date: string; recommended_bid_start: string; recommended_bid_close: string; days_until_refresh: number; est_deal_value_gbp: number }[];
+  packages: { id: number; scope_description: string; exclusivity: string; price_gbp: number; status: string; sold_date: string | null; category_name: string | null; region_name: string | null; icb_name: string | null }[];
 };
 
 function qs(params?: Record<string, unknown>) {

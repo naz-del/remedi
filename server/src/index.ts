@@ -4,7 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { db, initSchema, isEmpty } from './db.js';
 import { priceDataPackage } from './pricing.js';
-import { runSeed } from './seed.js';
+import { runSeed, ensureUsers } from './seed.js';
+import { authMiddleware, login, logout, requireAuth, requireRole } from './auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isProduction = process.env.NODE_ENV === 'production';
@@ -14,11 +15,139 @@ if (isEmpty()) {
   console.log('[remedi] DB empty — auto-seeding…');
   runSeed();
   console.log('[remedi] Seed complete.');
+} else {
+  const u = ensureUsers();
+  if (u.added > 0) console.log(`[remedi] Topped up ${u.added} demo user accounts on existing DB.`);
 }
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/api', authMiddleware);
+
+// ---------- Auth ----------
+app.post('/api/auth/login', (req, res) => {
+  const { email, password } = req.body ?? {};
+  if (!email || !password) { res.status(400).json({ error: 'email and password required' }); return; }
+  const result = login(String(email).toLowerCase(), String(password));
+  if (!result) { res.status(401).json({ error: 'invalid credentials' }); return; }
+  res.json(result);
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  const header = req.headers.authorization || '';
+  const token = header.replace(/^Bearer /i, '').trim();
+  if (token) logout(token);
+  res.json({ ok: true });
+});
+
+app.get('/api/auth/me', requireAuth, (req, res) => {
+  res.json({ user: req.user });
+});
+
+// All other /api/* routes require admin role unless explicitly scoped under /api/me/*.
+app.use('/api', (req, res, next) => {
+  if (req.path.startsWith('/auth/') || req.path.startsWith('/me/')) return next();
+  return requireRole('admin')(req, res, next);
+});
+
+// ---------- Scoped: hospital POV ----------
+app.get('/api/me/hospital', requireAuth, requireRole('hospital'), (req, res) => {
+  const siteId = req.user!.scope_id;
+  if (!siteId) { res.status(400).json({ error: 'no site scope' }); return; }
+  const site = db.prepare(`
+    SELECT s.*, t.name AS trust_name, i.name AS icb_name, r.name AS region_name
+    FROM sites s
+    JOIN trusts t ON t.id = s.trust_id
+    JOIN icbs i ON i.id = t.icb_id
+    JOIN regions r ON r.id = s.region_id
+    WHERE s.id = ?
+  `).get(siteId) as any;
+  const devices = db.prepare(`
+    SELECT sd.id, sd.units, sd.last_refresh_date, sd.refresh_interval_years,
+           dc.id AS category_id, dc.name AS category_name, dc.avg_unit_value_gbp,
+           date(sd.last_refresh_date, '+' || sd.refresh_interval_years || ' years') AS next_refresh_date,
+           cast(julianday(date(sd.last_refresh_date, '+' || sd.refresh_interval_years || ' years')) - julianday('now') AS INTEGER) AS days_until_refresh,
+           sd.units * dc.avg_unit_value_gbp AS replacement_value_gbp,
+           round(sd.units * dc.avg_unit_value_gbp * 0.22) AS estimated_divestment_gbp
+    FROM site_devices sd
+    JOIN device_categories dc ON dc.id = sd.category_id
+    WHERE sd.site_id = ?
+    ORDER BY next_refresh_date
+  `).all(siteId) as any[];
+  const summary = {
+    devices: devices.length,
+    upcoming_90d: devices.filter(d => d.days_until_refresh >= 0 && d.days_until_refresh <= 90).length,
+    upcoming_365d: devices.filter(d => d.days_until_refresh >= 0 && d.days_until_refresh <= 365).length,
+    estimated_divestment_gbp: devices.reduce((s, d) => s + (d.estimated_divestment_gbp || 0), 0),
+    replacement_value_gbp: devices.reduce((s, d) => s + (d.replacement_value_gbp || 0), 0),
+  };
+  // Mock pipeline of buyer enquiries to give the dashboard a sales-side narrative.
+  const enquiries = [
+    { from: 'ReMedi', subject: 'Pre-refresh offer: 12 patient monitors', status: 'awaiting your response', value_gbp: 18200 },
+    { from: 'ReMedi', subject: 'End-of-cycle ultrasound bundle', status: 'quoted', value_gbp: 36500 },
+    { from: 'ReMedi', subject: 'Quarterly statement', status: 'paid', value_gbp: 11400 },
+  ];
+  res.json({ site, devices, summary, enquiries });
+});
+
+// ---------- Scoped: manufacturer POV ----------
+app.get('/api/me/manufacturer', requireAuth, requireRole('manufacturer'), (req, res) => {
+  const mfrId = req.user!.scope_id;
+  if (!mfrId) { res.status(400).json({ error: 'no manufacturer scope' }); return; }
+  const mfr = db.prepare('SELECT * FROM manufacturers WHERE id = ?').get(mfrId) as any;
+  const interestCats: string[] = mfr.interest_categories ? JSON.parse(mfr.interest_categories) : [];
+  const interestRegions: string[] = mfr.interest_regions ? JSON.parse(mfr.interest_regions) : [];
+
+  const opportunities = db.prepare(`
+    SELECT sd.id, sd.units,
+      date(sd.last_refresh_date, '+' || sd.refresh_interval_years || ' years') AS next_refresh_date,
+      date(sd.last_refresh_date, '+' || sd.refresh_interval_years || ' years', '-180 days') AS recommended_bid_start,
+      date(sd.last_refresh_date, '+' || sd.refresh_interval_years || ' years', '-60 days') AS recommended_bid_close,
+      cast(julianday(date(sd.last_refresh_date, '+' || sd.refresh_interval_years || ' years')) - julianday('now') AS INTEGER) AS days_until_refresh,
+      s.id AS site_id, s.name AS site_name, s.city,
+      t.name AS trust_name,
+      i.name AS icb_name,
+      r.name AS region_name,
+      dc.name AS category_name,
+      sd.units * dc.avg_unit_value_gbp AS est_deal_value_gbp
+    FROM site_devices sd
+    JOIN sites s ON s.id = sd.site_id
+    JOIN trusts t ON t.id = s.trust_id
+    JOIN icbs i ON i.id = t.icb_id
+    JOIN regions r ON r.id = s.region_id
+    JOIN device_categories dc ON dc.id = sd.category_id
+    WHERE (length(?) = 0 OR dc.name IN (SELECT value FROM json_each(?)))
+      AND (length(?) = 0 OR r.name IN (SELECT value FROM json_each(?)))
+    ORDER BY next_refresh_date
+  `).all(
+    JSON.stringify(interestCats), JSON.stringify(interestCats),
+    JSON.stringify(interestRegions), JSON.stringify(interestRegions),
+  ) as any[];
+
+  const packages = db.prepare(`
+    SELECT dp.*, dc.name AS category_name, r.name AS region_name, i.name AS icb_name
+    FROM data_packages dp
+    LEFT JOIN device_categories dc ON dc.id = dp.category_id
+    LEFT JOIN regions r ON r.id = dp.region_id
+    LEFT JOIN icbs i ON i.id = dp.icb_id
+    WHERE dp.manufacturer_id = ?
+    ORDER BY dp.status DESC, dp.price_gbp DESC
+  `).all(mfrId);
+
+  const now = Date.now();
+  const summary = {
+    interest_categories: interestCats,
+    interest_regions: interestRegions,
+    opportunities: opportunities.length,
+    bid_now_count: opportunities.filter(o => new Date(o.recommended_bid_start).getTime() <= now && now <= new Date(o.recommended_bid_close).getTime()).length,
+    next_30d: opportunities.filter(o => o.days_until_refresh >= 0 && o.days_until_refresh <= 30).length,
+    total_pipeline_gbp: opportunities.reduce((s, o) => s + (o.est_deal_value_gbp || 0), 0),
+    packages_owned: (packages as any[]).filter(p => p.status === 'sold').length,
+    packages_spend_gbp: (packages as any[]).filter(p => p.status === 'sold').reduce((s, p) => s + p.price_gbp, 0),
+  };
+  res.json({ manufacturer: { id: mfr.id, name: mfr.name }, summary, opportunities, packages });
+});
 
 // ---------- Dashboard ----------
 app.get('/api/dashboard', (_req, res) => {
